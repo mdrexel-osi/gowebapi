@@ -24,6 +24,7 @@ This will print all the version numbers of your PI Web API server plugins.  Repl
 
 ```go
 // webapitest.go
+// webapitest.go
 package main
 
 import (
@@ -34,18 +35,23 @@ import (
 	pi "github.com/christoofar/gowebapi"
 )
 
-func main() {
-	cfg := pi.NewConfiguration()
+var cfg = pi.NewConfiguration()
+
+var client *pi.APIClient
+var auth context.Context
+
+func Init() {
 	cfg.BasePath = "https://{your web api server here}/piwebapi"
 
-	auth := context.WithValue(context.Background(), pi.ContextBasicAuth, pi.BasicAuth{
+	auth = context.WithValue(context.Background(), pi.ContextBasicAuth, pi.BasicAuth{
 		UserName: "{user name here}",
 		Password: "{password here}",
 	})
 
-	var client *pi.APIClient
 	client = pi.NewAPIClient(cfg)
+}
 
+func main() {
 	response, _, fail := client.SystemApi.SystemVersions(auth)
 	if fail != nil {
 		log.Fatal(fail)
