@@ -24,7 +24,6 @@ This will print all the version numbers of your PI Web API server plugins.  Repl
 
 ```go
 // webapitest.go
-// webapitest.go
 package main
 
 import (
@@ -52,6 +51,8 @@ func Init() {
 }
 
 func main() {
+	Init()
+	
 	response, _, fail := client.SystemApi.SystemVersions(auth)
 	if fail != nil {
 		log.Fatal(fail)
@@ -82,6 +83,9 @@ OSIsoft.Search.SvcLib 1.8.0.3651
 OSIsoft.PIDirectory 1.0.0.0
 OSIsoft.REST.Core 1.11.0.967
 ```
+
+## Examples
+I am keeping a cahce of example code to demonstrate how this client is used over in the [EXAMPLES.md](./EXAMPLES.md) page.
 
 ## Documentation for API Endpoints
 
