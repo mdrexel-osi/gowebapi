@@ -48,7 +48,7 @@ If you try to compile this, Go will immediately complain that the variable `auth
 ## Getting an AF Attribute
 At my office I have a AF database called `Chris` where I have some of my computers being monitored by PI Perfmon.  I would like to see the details about the Attribute I created called `Memory % In Use` hanging off a machine called CLSAF, which also happens to be my PI Server. 
 
-**Keep in mine that my WebIDs will not work in your environment.  You can use a web browser to manually find the WebIDs in your system by going to https://youirserver/piwebapi.**
+**Keep in mind that my WebIDs will not work in your environment.  You can use a web browser to manually find the WebIDs in your system by going to https://youirserver/piwebapi.**
 
 
 ![Here's my AF](./af1.png)
