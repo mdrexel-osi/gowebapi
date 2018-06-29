@@ -306,6 +306,21 @@ We have to make `Timestamp` a string here because the Batch controller doesn't s
 Then, we'll transform the `map[string]interface{}` into a BatchTimedValues struct so we can refer to the PI data.  Now, the completed BatchRequest method looks like this
 
 ```go
+
+type BatchRequest struct {
+	Resource string `json:"Resource,omitempty"`
+	Method   string `json:"Method,omitempty"`
+	Content  string `json:"Content,omitempty"`
+}
+
+type BatchTimedValues struct {
+	Timestamp string
+	Good      bool
+	Annotated bool
+	Value     *interface{}
+}
+
+
 func BatchExample() {
 
 	webid := "F1DPkkubnzk2202dbxhWMeQMsAAQAAAAQ0xTQUZcU0lOVVNPSUQ" // SINUSOID
