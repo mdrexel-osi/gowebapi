@@ -352,10 +352,8 @@ func BatchExample() {
 			fmt.Println("\t", index, ":\t", header)
 		}
 		fmt.Println("   Content: ")
-		//fmt.Println("\t", *element.Content)
 
 		data := (*element.Content).(map[string]interface{})
-		//		fmt.Println(data["Items"])
 
 		layout := "2006-01-02T15:04:05Z"
 		location, _ := time.LoadLocation("America/New_York")
