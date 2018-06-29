@@ -157,3 +157,116 @@ Result:
 
 Notice how the Go `map` datatype is able to handle a mix of data value types coming back.  A `map` is a name:value pair data type in golang.  Not everything will be a floating point number.   This means you need to check what comes back.
 
+## Batch Requests
+Strangely enough these are the most simplest things in the world to implement in Go.
+
+There's only one method `Execute` which takes an array of stuff.
+
+Let's send two requests at once to pull recorded values from the server.  To implement the individual request batches we need to define a struct where we can put our batch request content, which I've called `BatchRequest`.  If I don't fill something out in the `BatchRequest` struct I want to make sure the JSON for the empty fields do not get set.  You can attach hints to struct fields like this:
+
+```go
+
+type BatchRequest struct {
+	Resource string `json:"Resource,omitempty"`
+	Method   string `json:"Method,omitempty"`
+	Content  string `json:"Content,omitempty"`
+}
+
+func BatchExample() {
+
+	webid := "F1DPkkubnzk2202dbxhWMeQMsAAQAAAAQ0xTQUZcU0lOVVNPSUQ" // SINUSOID
+	webid2 := "F1DPkkubnzk2202dbxhWMeQMsAAwAAAAQ0xTQUZcQ0RUMTU4"   // CDT158
+
+	batches := make(map[string]BatchRequest)
+	
+	// Setup request 1
+	var batch1 BatchRequest
+	batch1.Method = "GET"
+	batch1.Resource = "https://localhost/piwebapi/streams/" + webid + "/recorded"
+
+	// Setup Request 2
+	var batch2 BatchRequest
+	batch2.Method = "GET"
+	batch2.Resource = "https://localhost/piwebapi/streams/" + webid2 + "/recorded"
+
+	// Stick 'em in the map
+	batches["1"] = batch1
+	batches["2"] = batch2
+
+	// Ship it!!!
+	value, resp, err := client.BatchApi.BatchExecute(auth, batches)
+	if err != nil {
+		log.Fatal("Batch request failed.  [", resp.StatusCode, "] ", err)
+	}
+
+	// Succeeded, now process what we got back
+	fmt.Println(value)
+	fmt.Println("Request completed.")
+
+}
+```
+
+Result:
+
+```
+map[1:{200 map[Content-Type:application/json; charset=utf-8] 0xc420304090} 
+2:{200 map[Content-Type:application/json; charset=utf-8] 0xc420304220}]
+Request completed.
+~/go/piwebapitest $ 
+```
+
+As you can see, we got back a memory address for the data (0xc420304090 and 0xc420304220), which means we were given pointers to some structure since those are memory addresses.  Let's call `fmt.Println()` again but this time we will do a print of each dereferenced item inside the map.
+
+```go
+	// Succeeded
+
+	for index, element := range value {
+		fmt.Println("Index:", index, "Status:", element)
+		fmt.Println("   Headers: ")
+		for index, header := range element.Headers {
+			fmt.Println("\t", index, ":\t", header)
+		}
+		fmt.Println("   Content: ")
+		fmt.Println("\t", *element.Content)
+	}
+```	
+
+Now, let's look at the output:
+![here's the output](./af5.png)
+
+My that's a lot of output!  Since Batch output can be literally anything, you can use the Go Delve debugger to figure out the data structure that was returned to you in the `gowebapi.Response` type.
+
+Let's change this routine so we loop through the information the server sent back.
+
+```go
+
+	for index, element := range value {
+		fmt.Println("Index:", index, "Status:", element)
+		fmt.Println("   Headers: ")
+		for index, header := range element.Headers {
+			fmt.Println("\t", index, ":\t", header)
+		}
+		fmt.Println("   Content: ")
+		fmt.Println("\t", *element.Content)
+
+		fmt.Println(*element.Content)
+	}
+```
+
+By running the [Go Delve](https://github.com/derekparker/delve) debugger and setting a breakpoint at the last `Println` statement we can probe what the `Content` is.   It is this:
+
+![debugger output](./af6.png)
+
+So it looks like for one of the two batches I got back 232 items.  We know they're time:value records from the PI Data Archive, but here we see yet more memory addresses.   So we need to deference these as well.   So let's do that, but to even get there we need to dereference the element list we have using a technique called [Type assertions](https://tour.golang.org/methods/15) which you can use to figure out what you have, like this:
+
+![more output](./af7.png)
+
+Aha, the data is structured!  It looks like we get back several layers of nested arrays, which the `json` library in Go converts to arrays of run-time interfaces.
+
+But we're seeing more pointers to more dictionary values.   But that's easy, we can loop through these to print them all out, dereferenced.   But since they're hiding inside `interface{}` we'll have to use type assertions yet again to remind Go that we got back nested dictionaries of things.
+
+![more output](./af8.png)
+
+My Batch can be complicated!  But it's all structured with references and it does take three levels of `for` loops to scan through all the results you got back--which is a perfect job for a goroutine to handle by itself.
+
+Since Delve told me what type these arrays of things are, I used those hints from the debugger to write this code to exract out the data.
