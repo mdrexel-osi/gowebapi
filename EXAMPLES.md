@@ -162,6 +162,7 @@ Strangely enough these are the most simplest things in the world to implement in
 
 There's only one method `Execute` which takes an array of stuff.
 
+### Making a batch request
 Let's send two requests at once to pull recorded values from the server.  To implement the individual request batches we need to define a struct where we can put our batch request content, which I've called `BatchRequest`.  If I don't fill something out in the `BatchRequest` struct I want to make sure the JSON for the empty fields do not get sent.  You can attach hints to struct fields like this:
 
 ```go
@@ -214,6 +215,8 @@ map[1:{200 map[Content-Type:application/json; charset=utf-8] 0xc420304090}
 Request completed.
 ~/go/piwebapitest $ 
 ```
+
+### Dealing with dynamic data returns
 
 As you can see, we got back a memory address for the data (0xc420304090 and 0xc420304220), which means we were given pointers to some structure since those are memory addresses.  Let's call `fmt.Println()` again but this time we will do a print of each dereferenced item inside the map.
 
@@ -270,3 +273,100 @@ We're seeing more pointers to more dictionary values.  That's easy, we can loop 
 My, Batch can be complicated!  But it's all structured with references and it does take three levels of `for` loops to scan through all the results you got back--which is a perfect job for a goroutine to handle by itself.
 
 Since Delve told me what type these arrays of things are, I used those hints from the debugger to write this code to exract out the data.
+
+### Let's make the dynamic data strongly-typed again
+
+Since the Batch controller literally returns "stuff" the shape of the data return is only discovered after you've formulated the data request.
+
+Since we now know that we made two calls to get streams from two PI tags and using the debugger we saw we got a stream of PI Point values back but they came in the form of a `map[string]interface{}`, which is literally a dictionary of unknown things.
+
+You *could* use a `switch` statement to loop through all the indexes, compare the names of the data fields in the JSON and then do one final type assertion to the value itself.   Personally, I think that's gross and creates ugly code.
+
+Luckily there is this awesome go package called [`mapstructure`](github.com/mitchellh/mapstructure) which will cast your crazy dynamic maps into `structs`.
+
+So, let's grab mapstructure:
+
+```
+~/go/piwebapitest $ go get -u github.com/mitchellh/mapstructure
+```
+
+Now, let's add a new struct to get the PI archive values...
+
+```go
+type BatchTimedValues struct {
+	Timestamp string
+	Good      bool
+	Annotated bool
+	Value     *interface{}
+}
+```
+
+We have to make `Timestamp` a string here because the Batch controller doesn't send the time back with milliseconds.  We will use the `time` package to do a nice casting of the time and put it in a local time zone.
+
+Then, we'll transform the `map[string]interface{}` into a BatchTimedValues struct so we can refer to the PI data.  Now, the completed BatchRequest method looks like this
+
+```go
+func BatchExample() {
+
+	webid := "F1DPkkubnzk2202dbxhWMeQMsAAQAAAAQ0xTQUZcU0lOVVNPSUQ" // SINUSOID
+	webid2 := "F1DPkkubnzk2202dbxhWMeQMsAAwAAAAQ0xTQUZcQ0RUMTU4"   // CDT158
+
+	batches := make(map[string]BatchRequest)
+	var batch1 BatchRequest
+	batch1.Method = "GET"
+	batch1.Resource = "https://localhost/piwebapi/streams/" + webid + "/recorded"
+
+	var batch2 BatchRequest
+	batch2.Method = "GET"
+	batch2.Resource = "https://localhost/piwebapi/streams/" + webid2 + "/recorded"
+
+	batches["1"] = batch1
+	batches["2"] = batch2
+
+	value, resp, err := client.BatchApi.BatchExecute(auth, batches)
+	if err != nil {
+		log.Fatal("Batch request failed.  [", resp.StatusCode, "] ", err)
+	}
+
+	// Succeeded
+
+	for index, element := range value {
+		fmt.Println("Index:", index, "Status:", element)
+		fmt.Println("   Headers: ")
+		for index, header := range element.Headers {
+			fmt.Println("\t", index, ":\t", header)
+		}
+		fmt.Println("   Content: ")
+		//fmt.Println("\t", *element.Content)
+
+		data := (*element.Content).(map[string]interface{})
+		//		fmt.Println(data["Items"])
+
+		layout := "2006-01-02T15:04:05Z"
+		location, _ := time.LoadLocation("America/New_York")
+
+		for _, dataitem := range data["Items"].([]interface{}) {
+
+			var pidata BatchTimedValues
+			mapstructure.Decode(dataitem, &pidata)
+
+			pitime, _ := time.Parse(layout, pidata.Timestamp)
+
+			fmt.Println(pitime.In(location),
+				*pidata.Value,
+				"Annotated:", pidata.Annotated,
+				"Good:", pidata.Good)
+
+		}
+
+		fmt.Println("----------", index, "--------------")
+
+	}
+
+	fmt.Println("Request completed.")
+
+}
+```
+
+And here's the output:
+![here's the output](./af10.png)
