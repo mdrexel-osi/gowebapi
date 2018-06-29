@@ -261,7 +261,7 @@ So it looks like for one of the two batches I got back 232 items.  We know they'
 
 ![more output](./af7.png)
 
-Aha, the data is structured!  It looks like we get back several layers of nested arrays, which the `json` library in Go converts to arrays of run-time interfaces.
+Aha, the data is structured!  It looks like we get back several layers of nested maps, which the `json` library in Go converts to arrays of run-time interfaces.
 
 But we're seeing more pointers to more dictionary values.   But that's easy, we can loop through these to print them all out, dereferenced.   But since they're hiding inside `interface{}` we'll have to use type assertions yet again to remind Go that we got back nested dictionaries of things.
 
