@@ -303,7 +303,7 @@ type BatchTimedValues struct {
 
 We have to make `Timestamp` a string here because the Batch controller doesn't send the time back with milliseconds.  We will use the `time` package to do a nice casting of the time and put it in a local time zone.
 
-Then, we'll transform the `map[string]interface{}` into a BatchTimedValues struct so we can refer to the PI data.  Now, the completed BatchRequest method looks like this
+Then, we'll transform the `map[string]interface{}` into a `BatchTimedValues` struct so we can refer to the PI data.  Now, the completed `BatchRequest()` function looks like this
 
 ```go
 
