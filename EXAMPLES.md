@@ -267,6 +267,6 @@ We're seeing more pointers to more dictionary values.  That's easy, we can loop 
 
 ![more output](./af8.png)
 
-My Batch can be complicated!  But it's all structured with references and it does take three levels of `for` loops to scan through all the results you got back--which is a perfect job for a goroutine to handle by itself.
+My, Batch can be complicated!  But it's all structured with references and it does take three levels of `for` loops to scan through all the results you got back--which is a perfect job for a goroutine to handle by itself.
 
 Since Delve told me what type these arrays of things are, I used those hints from the debugger to write this code to exract out the data.
