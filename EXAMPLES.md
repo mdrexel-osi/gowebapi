@@ -162,7 +162,7 @@ Strangely enough these are the most simplest things in the world to implement in
 
 There's only one method `Execute` which takes an array of stuff.
 
-Let's send two requests at once to pull recorded values from the server.  To implement the individual request batches we need to define a struct where we can put our batch request content, which I've called `BatchRequest`.  If I don't fill something out in the `BatchRequest` struct I want to make sure the JSON for the empty fields do not get set.  You can attach hints to struct fields like this:
+Let's send two requests at once to pull recorded values from the server.  To implement the individual request batches we need to define a struct where we can put our batch request content, which I've called `BatchRequest`.  If I don't fill something out in the `BatchRequest` struct I want to make sure the JSON for the empty fields do not get sent.  You can attach hints to struct fields like this:
 
 ```go
 
