@@ -278,7 +278,7 @@ Since Delve told me what type these arrays of things are, I used those hints fro
 
 Since the Batch controller literally returns "stuff" the shape of the data return is only discovered after you've formulated the data request.
 
-Since we now know that we made two calls to get streams from two PI tags and using the debugger we saw we got a stream of PI Point values back but they came in the form of a `map[string]interface{}`, which is literally a dictionary of unknown things.
+We also now know that when we made two calls to get streams from two PI tags--using the debugger we saw we got a stream of PI Point values back.  But--they came in the form of a `map[string]interface{}`, which is literally a dictionary of unknown things.
 
 You *could* use a `switch` statement to loop through all the indexes, compare the names of the data fields in the JSON and then do one final type assertion to the value itself.   Personally, I think that's gross and creates ugly code.
 
