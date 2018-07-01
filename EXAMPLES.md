@@ -60,9 +60,8 @@ func GetAttribute() {
 
 	// Construct the PathOnly WebID for \\CLSAF\Chris\CLSAF|Memory % In Use
 
-	// See https://pisquare.osisoft.com/community/developers-club/blog/2018/01/26/pi-web-api-web-id-20-specification-tables
-	webid := "P1AbE"     // <-- We're telling the server this is an AF Attribute hanging off an AF Element
-	webid += "Q0xTQUZcQ0hSSVNcQ0xTQUZ8TUVNT1JZICUgSU4gVVNF" // CLSAF\CHRIS\CLSAF|MEMORY % IN USE
+	webid := pi.EncodeWebID(pi.NewAFAttributeWebID("CLSAF\\Chris\\CLSAF|Memory % In Use", pi.IS_AF_ELEMENT))
+
 	options := make(map[string]interface{})
 	options["webIdType"] = "PathOnly"
 
@@ -87,10 +86,10 @@ Add a call to this `func` in your main() and then compile and run your program. 
 Here's how to pull some recorded values out of a PI Point (aka "PI tag")
 
 ```go
-func GetSiusoidTag() {
+func GetSinusoidTag() {
 
-	webid := "P1DP"                // <-- This is a PI Point
-	webid += "Q0xTQUZcU0lOVVNPSUQ" // <-- Whose path is CLSAF\SINUSOID
+	webid := pi.EncodeWebID(pi.NewPIPointWebID("CLSAF\\SINUSOID"))
+
 	optionals := make(map[string]interface{})
 
 	optionals["startTime"] = "*-5d"
@@ -122,8 +121,9 @@ Here's how to pull some recorded values out of an AF Attribute that has a DataRe
 
 ```go
 func GetRecordedValues() {
-	webid := "P1AbE"     // <-- We're telling the server this is an AF Attribute hanging off an AF Element
-	webid += "Q0xTQUZcQ0hSSVNcQ0xTQUZ8TUVNT1JZICUgSU4gVVNF" // CLSAF\CHRIS\CLSAF|MEMORY % IN USE
+
+	webid := pi.EncodeWebID(pi.NewAFAttributeWebID("CLSAF\\Chris\\CLSAF|Memory % In Use", pi.IS_AF_ELEMENT))
+
 	optionals := make(map[string]interface{})
 
 	optionals["endTime"] = "*"
@@ -175,8 +175,8 @@ type BatchRequest struct {
 
 func BatchExample() {
 
-	webid := "F1DPkkubnzk2202dbxhWMeQMsAAQAAAAQ0xTQUZcU0lOVVNPSUQ" // SINUSOID
-	webid2 := "F1DPkkubnzk2202dbxhWMeQMsAAwAAAAQ0xTQUZcQ0RUMTU4"   // CDT158
+	webid := pi.EncodeWebID(pi.NewPIPointWebID("CLSAF\\SINUSOID"))	
+	webid2 := pi.EncodeWebID(pi.NewPIPointWebID("CLSAF\\CDT158"))	
 
 	batches := make(map[string]BatchRequest)
 	
@@ -323,8 +323,8 @@ type BatchTimedValues struct {
 
 func BatchExample() {
 
-	webid := "F1DPkkubnzk2202dbxhWMeQMsAAQAAAAQ0xTQUZcU0lOVVNPSUQ" // SINUSOID
-	webid2 := "F1DPkkubnzk2202dbxhWMeQMsAAwAAAAQ0xTQUZcQ0RUMTU4"   // CDT158
+	webid := pi.EncodeWebID(pi.NewPIPointWebID("CLSAF\\SINUSOID"))	
+	webid2 := pi.EncodeWebID(pi.NewPIPointWebID("CLSAF\\CDT158"))	
 
 	batches := make(map[string]BatchRequest)
 	var batch1 BatchRequest
