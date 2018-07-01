@@ -1,12 +1,8 @@
 # Go PI Web API Examples
 
-The examples I am about to show you will require a little bit of knowledge of how PI Web API works since we do not have a handy WebID builder *yet*.
+We have added a WebID2 wrapper to this library.   Make sure you use the WebID functions in [webid.go](webid.go) to construct WebIDs from your AF and PI object paths.
 
-If you're wondering what a WebID is, it's this static ID that's on all objects you put into the PI System.  See here:
-
-![Web ID](./webid.png)
-
-You can get the [full Web ID 2.0 spec](https://pisquare.osisoft.com/community/developers-club/blog/2018/01/26/pi-web-api-web-id-20-specification-tables) on PI Dev Club as well as [a video and instructions](https://pisquare.osisoft.com/community/developers-club/blog/2018/01/26/pi-web-api-using-web-id-20-to-optimize-your-applications) on how to decode them.
+I have updated the examples here to show you how WebIDs are constructed.  Please also review [webid_tests.go](webid_tests.go) to see how each different AF and PI object constuct their WebIDs.
 
 ## Setting up an HTTP Client
 ```go
