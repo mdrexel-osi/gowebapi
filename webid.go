@@ -885,6 +885,6 @@ func EncodeWebID(webIdStructure interface{}) (webIDString string) {
 		)
 	}
 
-	log.Fatal("The object passed to gowebapi.EncodeWebID is not a supported type.")
+	log.Fatal("The item you passed to gowebapi.EncodeWebID() is not a supported type. Use the pi.New..WebId functions to create a valid WebID struct.")
 	return ""
 }
