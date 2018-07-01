@@ -2,7 +2,7 @@
 
 We have added a WebID2 wrapper to this library.   Make sure you use the WebID functions in [webid.go](webid.go) to construct WebIDs from your AF and PI object paths.
 
-I have updated the examples here to show you how WebIDs are constructed.  Please also review [webid_tests.go](webid_tests.go) to see how each different AF and PI object constuct their WebIDs.
+I have updated the examples here to show you how WebIDs are constructed.  Please also review [webid_tests.go](webid_tests.go) to see how each different AF and PI object constucts their WebIDs.
 
 ## Setting up an HTTP Client
 ```go
