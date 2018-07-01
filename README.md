@@ -34,18 +34,25 @@ import (
 	pi "github.com/christoofar/gowebapi"
 )
 
-func main() {
-	cfg := pi.NewConfiguration()
+var cfg = pi.NewConfiguration()
+
+var client *pi.APIClient
+var auth context.Context
+
+func Init() {
 	cfg.BasePath = "https://{your web api server here}/piwebapi"
 
-	auth := context.WithValue(context.Background(), pi.ContextBasicAuth, pi.BasicAuth{
+	auth = context.WithValue(context.Background(), pi.ContextBasicAuth, pi.BasicAuth{
 		UserName: "{user name here}",
 		Password: "{password here}",
 	})
 
-	var client *pi.APIClient
 	client = pi.NewAPIClient(cfg)
+}
 
+func main() {
+	Init()
+	
 	response, _, fail := client.SystemApi.SystemVersions(auth)
 	if fail != nil {
 		log.Fatal(fail)
@@ -76,6 +83,9 @@ OSIsoft.Search.SvcLib 1.8.0.3651
 OSIsoft.PIDirectory 1.0.0.0
 OSIsoft.REST.Core 1.11.0.967
 ```
+
+## Examples
+I am keeping a cahce of example code to demonstrate how this client is used over in the [EXAMPLES.md](./EXAMPLES.md) page.
 
 ## Documentation for API Endpoints
 
